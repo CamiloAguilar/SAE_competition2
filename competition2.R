@@ -58,7 +58,7 @@ var_candidates <- c("CONSUMO_ENERGIA_PER_HABIT", "COBER_MEDIA_TASA", "NBI_RURAL_
                     "Tasa_recibidos", "IND_CAPACIDAD_ADMINISTRATIVA", "IND_INTEGRAL_MCIPAL",
                     "TASA_VACUN_BCG", "densidad_pop", "IND_EFICIENCIA_MUNICIPAL","IND_EFICACIA_MUNICIPAL",
                     "TASA_VACUN_POLIO", "TASA_VACUN_DPT", "Tasa_secuestros") #m_corr$feature
-var_candidates
+var_candidates <- m_corr$feature[1:29]
 
 # Exploración 
 modelocompleto <- paste0("meansByMun", " ~ ", paste(var_candidates, collapse = " + "))
@@ -70,18 +70,27 @@ modelo_optimo <- names(modelo_optimo$coefficients)[2:length(names(modelo_optimo$
 formula_var <- paste0("meansByMun", " ~ ", paste(modelo_optimo, collapse = " + "))
 
 modelo_reducido <- lm(formula_var, data = muestra_multi)
-summary(modelo_reducido)
+(p<-summary(modelo_reducido))
 var_selec <- names(which(p$coefficients[,4]<=0.05))
 formula_var <- paste0("meansByMun", " ~ ", paste(var_selec, collapse = " + "))
 
 modelo_reducido2 <- lm(formula_var, data = muestra_multi)
 summary(modelo_reducido2)
 var_sel <- names(modelo_reducido2$coefficients)[2:length(names(modelo_reducido2$coefficients))]
+#var_sel <- modelo_optimo
 
 #################################################################
 formula_var <- as.formula(paste0("meansByMun", " ~ ", paste(var_sel, collapse = " + ")))
-FH_prommat <- mseFH(formula_var,  varmeansByMun, data = muestra_multi)
+#FH_prommat <- mseFH(formula_var,  varmeansByMun, data = muestra_multi)
+FH_prommat <- mseFH(meansByMun ~ COBER_MEDIA_TASA + 
+                         NBI_2010 + NBI_URBANO_2010 + AREA_KM2 + ESFUERZO_FISCAL + 
+                         TASA_DELITOS_SEXUALES + TASA_HOMICIDIOS + Tasa_recibidos + 
+                         DESMINADO_MILITAR_OPERACIONES + IND_CUMPLIMIENTO_REQUI_LEGALES + 
+                         IND_INTEGRAL_MCIPAL + PERSONAS_RECIBIDOS,  varmeansByMun, data = muestra_multi)
 FH_prommat
+var_sel <- c("COBER_MEDIA_TASA", "NBI_2010", "NBI_URBANO_2010", "AREA_KM2", "ESFUERZO_FISCAL", 
+             "TASA_DELITOS_SEXUALES", "TASA_HOMICIDIOS", "Tasa_recibidos", "DESMINADO_MILITAR_OPERACIONES",
+             "IND_CUMPLIMIENTO_REQUI_LEGALES", "IND_INTEGRAL_MCIPAL", "PERSONAS_RECIBIDOS")
 
 datos_ingreso <- muestra_multi
 datos_ingreso$Y_FH <- FH_prommat$est$eblup
