@@ -21,6 +21,8 @@ muestra_multi$Biblio_per <- muestra_multi$POBLACION / muestra_multi$NUM_BIBLIOTE
 muestra_multi$Biblio_per[is.infinite(muestra_multi$Biblio_per)]<-0
 muestra_multi$Tasa_secuestros <- muestra_multi$PERSONAS_SECUESTRADAS / muestra_multi$POBLACION
 muestra_multi$Tasa_recibidos <- muestra_multi$PERSONAS_RECIBIDOS / muestra_multi$POBLACION
+muestra_multi$meansByMun <- muestra_multi$meansByMun/1000
+muestra_multi$varmeansByMun <- muestra_multi$varmeansByMun/(1000^2)
 
 # Datos poblacionales
 Municipios <- as.data.frame(read_excel("./data/CONSOLIDADO_MPIOS_CUNDINAMARCA.xlsx"))
@@ -29,6 +31,9 @@ Municipios$Biblio_per <- Municipios$POBLACION / Municipios$NUM_BIBLIOTECAS
 Municipios$Biblio_per[is.infinite(Municipios$Biblio_per)]<-0
 Municipios$Tasa_secuestros <- Municipios$PERSONAS_SECUESTRADAS / Municipios$POBLACION
 Municipios$Tasa_recibidos <- Municipios$PERSONAS_RECIBIDOS / Municipios$POBLACION
+Municipios$meansByMun <- Municipios$meansByMun/1000
+Municipios$varmeansByMun <- Municipios$varmeansByMun/(1000^2)
+
 
 names(muestra_multi)
 
@@ -58,7 +63,7 @@ var_candidates <- c("CONSUMO_ENERGIA_PER_HABIT", "COBER_MEDIA_TASA", "NBI_RURAL_
                     "Tasa_recibidos", "IND_CAPACIDAD_ADMINISTRATIVA", "IND_INTEGRAL_MCIPAL",
                     "TASA_VACUN_BCG", "densidad_pop", "IND_EFICIENCIA_MUNICIPAL","IND_EFICACIA_MUNICIPAL",
                     "TASA_VACUN_POLIO", "TASA_VACUN_DPT", "Tasa_secuestros") #m_corr$feature
-var_candidates <- m_corr$feature[1:29]
+#var_candidates <- m_corr$feature[1:29]
 
 # Exploración 
 modelocompleto <- paste0("meansByMun", " ~ ", paste(var_candidates, collapse = " + "))
@@ -81,16 +86,16 @@ var_sel <- names(modelo_reducido2$coefficients)[2:length(names(modelo_reducido2$
 
 #################################################################
 formula_var <- as.formula(paste0("meansByMun", " ~ ", paste(var_sel, collapse = " + ")))
-#FH_prommat <- mseFH(formula_var,  varmeansByMun, data = muestra_multi)
-FH_prommat <- mseFH(meansByMun ~ COBER_MEDIA_TASA + 
-                         NBI_2010 + NBI_URBANO_2010 + AREA_KM2 + ESFUERZO_FISCAL + 
-                         TASA_DELITOS_SEXUALES + TASA_HOMICIDIOS + Tasa_recibidos + 
-                         DESMINADO_MILITAR_OPERACIONES + IND_CUMPLIMIENTO_REQUI_LEGALES + 
-                         IND_INTEGRAL_MCIPAL + PERSONAS_RECIBIDOS,  varmeansByMun, data = muestra_multi)
+FH_prommat <- mseFH(formula_var,  varmeansByMun, data = muestra_multi)
+#FH_prommat <- mseFH(meansByMun ~ COBER_MEDIA_TASA + 
+#                         NBI_2010 + NBI_URBANO_2010 + AREA_KM2 + ESFUERZO_FISCAL + 
+#                         TASA_DELITOS_SEXUALES + TASA_HOMICIDIOS + Tasa_recibidos + 
+#                         DESMINADO_MILITAR_OPERACIONES + IND_CUMPLIMIENTO_REQUI_LEGALES + 
+#                         IND_INTEGRAL_MCIPAL + PERSONAS_RECIBIDOS,  varmeansByMun, data = muestra_multi)
 FH_prommat
-var_sel <- c("COBER_MEDIA_TASA", "NBI_2010", "NBI_URBANO_2010", "AREA_KM2", "ESFUERZO_FISCAL", 
-             "TASA_DELITOS_SEXUALES", "TASA_HOMICIDIOS", "Tasa_recibidos", "DESMINADO_MILITAR_OPERACIONES",
-             "IND_CUMPLIMIENTO_REQUI_LEGALES", "IND_INTEGRAL_MCIPAL", "PERSONAS_RECIBIDOS")
+#var_sel <- c("COBER_MEDIA_TASA", "NBI_2010", "NBI_URBANO_2010", "AREA_KM2", "ESFUERZO_FISCAL", 
+#             "TASA_DELITOS_SEXUALES", "TASA_HOMICIDIOS", "Tasa_recibidos", "DESMINADO_MILITAR_OPERACIONES",
+#             "IND_CUMPLIMIENTO_REQUI_LEGALES", "IND_INTEGRAL_MCIPAL", "PERSONAS_RECIBIDOS")
 
 datos_ingreso <- muestra_multi
 datos_ingreso$Y_FH <- FH_prommat$est$eblup
